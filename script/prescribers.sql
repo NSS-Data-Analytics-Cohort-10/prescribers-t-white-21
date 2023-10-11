@@ -21,11 +21,33 @@ GROUP BY nppes_provider_first_name, nppes_provider_last_org_name,  specialty_des
 ORDER BY SUM(total_claim_count) DESC
 LIMIT 10;
 	
+--a: BRUCE PENDLEY, FAMILY PRACTICE, 99707
 
 -- 2. 
 --     a. Which specialty had the most total number of claims (totaled over all drugs)?
 
+SELECT specialty_description, SUM(total_claim_count) AS claim_count_sum
+FROM prescriber
+INNER JOIN prescription
+	USING (npi)
+GROUP BY specialty_description
+ORDER BY SUM(total_claim_count) DESC
+LIMIT 10;
+
+--a: FAMILY PRACTICE
+
 --     b. Which specialty had the most total number of claims for opioids?
+
+SELECT ps.specialty_description, 
+	COUNT(d.opioid_drug_flag = 'y') AS opiod_count
+FROM prescriber ps
+INNER JOIN prescription rx
+	USING (npi)
+LEFT JOIN drug d
+	ON rx.drug_name = d.drug_name
+GROUP BY specialty_description
+ORDER BY COUNT(opioid_drug_flag) DESC
+LIMIT 10;
 
 --     c. **Challenge Question:** Are there any specialties that appear in the prescriber table that have no associated prescriptions in the prescription table?
 
