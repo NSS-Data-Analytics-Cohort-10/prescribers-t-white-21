@@ -90,7 +90,7 @@ SELECT drug_name,
 	CASE WHEN opioid_drug_flag = 'Y' THEN 'opioid'
 	WHEN antibiotic_drug_flag = 'Y' THEN 'antibiotic'
 	ELSE 'neither' END AS drug_type
-FROM drug
+FROM drug;
 
 
 --     b. Building off of the query you wrote for part a, determine whether more was spent (total_drug_cost) on opioids or on antibiotics. Hint: Format the total costs as MONEY for easier comparision.
@@ -113,14 +113,44 @@ GROUP BY
 	CASE WHEN opioid_drug_flag = 'Y' THEN 'opioid'
 		WHEN antibiotic_drug_flag = 'Y' THEN 'antibiotic'
 		ELSE 'neither' 
-	END
+	END;
 
 -- 5. 
 --     a. How many CBSAs are in Tennessee? **Warning:** The cbsa table contains information for all states, not just Tennessee.
 
+SELECT DISTINCT (cbsaname)
+FROM CBSA
+WHERE cbsaname LIKE '%TN%';
+
+--a: 10
+
 --     b. Which cbsa has the largest combined population? Which has the smallest? Report the CBSA name and total population.
+SELECT cbsaname, SUM(population) AS total_pop
+FROM cbsa
+LEFT JOIN zip_fips
+	USING (fipscounty)
+LEFT JOIN population
+	USING (fipscounty)
+WHERE population IS NOT NULL
+GROUP BY cbsaname
+ORDER BY total_pop DESC;
+
+--a: largest combined: "Memphis, TN-MS-AR"	67870189
+	-- smallest combined: "Morristown, TN"	1163520
 
 --     c. What is the largest (in terms of population) county which is not included in a CBSA? Report the county name and population.
+
+SELECT county, state, population
+FROM cbsa
+FULL JOIN fips_county
+	USING (fipscounty)
+LEFT JOIN population
+	USING (fipscounty)
+WHERE cbsa IS NULL
+	AND population IS NOT NULL
+ORDER BY population DESC;
+
+--a: Sevier
 
 -- 6. 
 --     a. Find all rows in the prescription table where total_claims is at least 3000. Report the drug_name and the total_claim_count.
