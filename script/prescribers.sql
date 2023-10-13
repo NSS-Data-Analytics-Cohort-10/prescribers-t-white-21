@@ -155,7 +155,28 @@ ORDER BY population DESC;
 -- 6. 
 --     a. Find all rows in the prescription table where total_claims is at least 3000. Report the drug_name and the total_claim_count.
 
+SELECT drug_name, 
+	SUM(total_claim_count) AS total_claims
+FROM prescription
+WHERE total_claim_count >= 3000
+GROUP BY drug_name
+ORDER BY total_claims DESC;
+
+--a: 7 total
+
 --     b. For each instance that you found in part a, add a column that indicates whether the drug is an opioid.
+
+SELECT drug_name, 
+	SUM(total_claim_count) AS total_claims,
+	CASE WHEN opioid_drug_flag = 'Y' THEN 'YES'
+		ELSE 'NO' END AS opioid
+FROM prescription
+LEFT JOIN drug
+	USING (drug_name)
+WHERE total_claim_count >= 3000
+GROUP BY drug_name, opioid_drug_flag
+ORDER BY total_claims DESC;
+
 
 --     c. Add another column to you answer from the previous part which gives the prescriber first and last name associated with each row.
 
