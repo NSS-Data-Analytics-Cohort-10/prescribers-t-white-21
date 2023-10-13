@@ -100,16 +100,17 @@ SELECT
 		WHEN antibiotic_drug_flag = 'Y' THEN 'antibiotic'
 		ELSE 'neither' 
 	END AS drug_type,
-	SUM(total_drug_cost)
+	CAST (SUM(total_drug_cost) AS money)
 FROM drug
 LEFT JOIN prescription
 USING (drug_name)
 WHERE 
-CASE WHEN opioid_drug_flag = 'Y' THEN 'opioid'
+	CASE WHEN opioid_drug_flag = 'Y' THEN 'opioid'
 		WHEN antibiotic_drug_flag = 'Y' THEN 'antibiotic'
 		ELSE 'neither' 
 	END <>'neither'
-GROUP BY CASE WHEN opioid_drug_flag = 'Y' THEN 'opioid'
+GROUP BY 
+	CASE WHEN opioid_drug_flag = 'Y' THEN 'opioid'
 		WHEN antibiotic_drug_flag = 'Y' THEN 'antibiotic'
 		ELSE 'neither' 
 	END
