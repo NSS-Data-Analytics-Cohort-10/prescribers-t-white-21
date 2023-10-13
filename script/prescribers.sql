@@ -86,7 +86,33 @@ ORDER BY daily_cost DESC;
 -- 4. 
 --     a. For each drug in the drug table, return the drug name and then a column named 'drug_type' which says 'opioid' for drugs which have opioid_drug_flag = 'Y', says 'antibiotic' for those drugs which have antibiotic_drug_flag = 'Y', and says 'neither' for all other drugs.
 
+SELECT drug_name, 
+	CASE WHEN opioid_drug_flag = 'Y' THEN 'opioid'
+	WHEN antibiotic_drug_flag = 'Y' THEN 'antibiotic'
+	ELSE 'neither' END AS drug_type
+FROM drug
+
+
 --     b. Building off of the query you wrote for part a, determine whether more was spent (total_drug_cost) on opioids or on antibiotics. Hint: Format the total costs as MONEY for easier comparision.
+
+SELECT  
+	CASE WHEN opioid_drug_flag = 'Y' THEN 'opioid'
+		WHEN antibiotic_drug_flag = 'Y' THEN 'antibiotic'
+		ELSE 'neither' 
+	END AS drug_type,
+	SUM(total_drug_cost)
+FROM drug
+LEFT JOIN prescription
+USING (drug_name)
+WHERE 
+CASE WHEN opioid_drug_flag = 'Y' THEN 'opioid'
+		WHEN antibiotic_drug_flag = 'Y' THEN 'antibiotic'
+		ELSE 'neither' 
+	END <>'neither'
+GROUP BY CASE WHEN opioid_drug_flag = 'Y' THEN 'opioid'
+		WHEN antibiotic_drug_flag = 'Y' THEN 'antibiotic'
+		ELSE 'neither' 
+	END
 
 -- 5. 
 --     a. How many CBSAs are in Tennessee? **Warning:** The cbsa table contains information for all states, not just Tennessee.
