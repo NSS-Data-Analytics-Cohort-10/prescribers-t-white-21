@@ -40,14 +40,24 @@ GROUP BY specialty_description;
 
 -- 3. Now, instead of using UNION, make use of GROUPING SETS (https://www.postgresql.org/docs/10/queries-table-expressions.html#QUERIES-GROUPING-SETS) to achieve the same output.
 
--- SELECT specialty_description,SUM(total_claim_count)AS total_claim
---    FROM prescriber
---    left JOIN prescription
---    USING(npi)
---    WHERE specialty_description IN ('Interventional Pain Management','Pain Management')
--- 	GROUP BY GROUPING SETS((),(specialty_description));
+SELECT specialty_description, SUM(total_claim_count) AS total_claims
+FROM prescriber
+LEFT JOIN prescription
+	USING (npi)
+WHERE specialty_description LIKE '%Pain Management'
+GROUP BY GROUPING SETS ((),(specialty_description));
+
 
 -- 4. In addition to comparing the total number of prescriptions by specialty, let's also bring in information about the number of opioid vs. non-opioid claims by these two specialties. Modify your query (still making use of GROUPING SETS so that your output also shows the total number of opioid claims vs. non-opioid claims by these two specialites:
+
+SELECT specialty_description, opioid_drug_flag, SUM(total_claim_count) AS total_claims
+FROM prescriber
+LEFT JOIN prescription
+	USING (npi)
+LEFT JOIN drug
+	USING (drug_name)
+WHERE specialty_description LIKE '%Pain Management'
+GROUP BY GROUPING SETS ((),(opioid_drug_flag),(specialty_description));
 
 -- specialty_description         |opioid_drug_flag|total_claims|
 -- ------------------------------|----------------|------------|
@@ -58,6 +68,16 @@ GROUP BY specialty_description;
 -- Interventional Pain Management|                |       57239|
 
 -- 5. Modify your query by replacing the GROUPING SETS with ROLLUP(opioid_drug_flag, specialty_description). How is the result different from the output from the previous query?
+
+SELECT specialty_description, opioid_drug_flag, SUM(total_claim_count) AS total_claims
+FROM prescriber
+LEFT JOIN prescription
+	USING (npi)
+LEFT JOIN drug
+	USING (drug_name)
+WHERE specialty_description LIKE '%Pain Management'
+ROLLUP ((opioid_drug_flag), (specialty_description, SUM(total_claim_count))
+
 
 -- 6. Switch the order of the variables inside the ROLLUP. That is, use ROLLUP(specialty_description, opioid_drug_flag). How does this change the result?
 
