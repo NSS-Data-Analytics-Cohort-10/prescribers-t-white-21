@@ -18,13 +18,34 @@ GROUP BY specialty_description;
 
 -- 2. Now, let's say that we want our output to also include the total number of claims between these two groups. Combine two queries with the UNION keyword to accomplish this. Your output should look like this:
 
+SELECT null AS specialty_description, SUM(total_claim_count) AS total_claims
+FROM prescriber
+LEFT JOIN prescription
+	USING (npi)
+WHERE specialty_description LIKE '%Pain Management'
+UNION
+SELECT specialty_description, SUM(total_claim_count) AS total_claims
+FROM prescriber
+LEFT JOIN prescription
+	USING (npi)
+WHERE specialty_description LIKE '%Pain Management'
+GROUP BY specialty_description;
+
 -- specialty_description         |total_claims|
 -- ------------------------------|------------|
 --                               |      126759|
 -- Interventional Pain Management|       55906|
 -- Pain Management               |       70853|
 
+
 -- 3. Now, instead of using UNION, make use of GROUPING SETS (https://www.postgresql.org/docs/10/queries-table-expressions.html#QUERIES-GROUPING-SETS) to achieve the same output.
+
+-- SELECT specialty_description,SUM(total_claim_count)AS total_claim
+--    FROM prescriber
+--    left JOIN prescription
+--    USING(npi)
+--    WHERE specialty_description IN ('Interventional Pain Management','Pain Management')
+-- 	GROUP BY GROUPING SETS((),(specialty_description));
 
 -- 4. In addition to comparing the total number of prescriptions by specialty, let's also bring in information about the number of opioid vs. non-opioid claims by these two specialties. Modify your query (still making use of GROUPING SETS so that your output also shows the total number of opioid claims vs. non-opioid claims by these two specialites:
 
