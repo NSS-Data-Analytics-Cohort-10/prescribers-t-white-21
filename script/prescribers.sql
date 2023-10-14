@@ -53,6 +53,13 @@ LIMIT 10;
 
 --     c. **Challenge Question:** Are there any specialties that appear in the prescriber table that have no associated prescriptions in the prescription table?
 
+SELECT specialty_description, COUNT(drug_name)
+FROM prescriber
+full JOIN prescription
+	USING (npi)
+GROUP BY specialty_description
+ORDER BY COUNT(drug_name)
+
 
 --     d. **Difficult Bonus:** *Do not attempt until you have solved all other problems!* For each specialty, report the percentage of total claims by that specialty which are for opioids. Which specialties have a high percentage of opioids?
 
@@ -206,8 +213,8 @@ SELECT npi, drug_name
 FROM prescriber AS ps
 CROSS JOIN drug
 WHERE ps.specialty_description = 'Pain Management'
- AND ps.nppes_provider_city = 'NASHVILLE'
- AND opioid_drug_flag = 'Y';
+	AND ps.nppes_provider_city = 'NASHVILLE'
+	AND opioid_drug_flag = 'Y';
 
 
 --     b. Next, report the number of claims per drug per prescriber. Be sure to include all combinations, whether or not the prescriber had any claims. You should report the npi, the drug name, and the number of claims (total_claim_count
@@ -216,23 +223,24 @@ SELECT ps.npi, drug.drug_name, rx.total_claim_count
 FROM prescriber ps 
 CROSS JOIN drug
 LEFT JOIN prescription rx	
-ON ps.npi=rx.npi
- AND drug.drug_name=rx.drug_name
+	ON ps.npi=rx.npi
+ 	AND drug.drug_name=rx.drug_name
 WHERE ps.specialty_description = 'Pain Management'
 	AND ps.nppes_provider_city = 'NASHVILLE'
 	AND drug.opioId_drug_flag = 'Y';
 	
-    
 -- --     c. Finally, if you have not done so already, fill in any missing values for total_claim_count with 0. Hint - Google the COALESCE function.
 
 SELECT ps.npi, 
 	drug.drug_name, 
-	COALESCE(rx.total_claim_count, 0)
+	COALESCE(rx.total_claim_count, 0) AS total_claims
 FROM prescriber ps 
 CROSS JOIN drug
 LEFT JOIN prescription rx	
-ON ps.npi=rx.npi
- AND drug.drug_name=rx.drug_name
+	ON ps.npi=rx.npi
+ 	AND drug.drug_name=rx.drug_name
 WHERE ps.specialty_description = 'Pain Management'
 	AND ps.nppes_provider_city = 'NASHVILLE'
 	AND drug.opioId_drug_flag = 'Y';
+	
+
